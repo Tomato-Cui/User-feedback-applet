@@ -1,0 +1,31 @@
+{
+    "bsonType": "object",
+    "required": ["email", "code", "create_time", "expired_time"],
+    "permission": {
+        "read": false,
+        "create": true,
+        "update": false,
+        "delete": false
+    },
+    "properties": {
+        "_id": {
+            "description": "ID，系统自动生成"
+        },
+        "email": {
+            "bsonType": "string",
+            "description": "邮箱地址"
+        },
+        "code": {
+            "bsonType": "string",
+            "description": "验证码"
+        },
+        "create_time": {
+            "bsonType": "timestamp",
+            "description": "创建时间"
+        },
+        "expired_time": {
+            "bsonType": "timestamp", 
+            "description": "过期时间"
+        }
+    }
+} 

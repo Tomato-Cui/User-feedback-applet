@@ -1,0 +1,9 @@
+{
+    "emailConfig": {
+        "host": "smtp.qq.com",
+        "port": 465,
+        "user": "你的邮箱@qq.com",
+        "pass": "你的邮箱授权码",
+        "from": "你的邮箱@qq.com"
+    }
+} 
