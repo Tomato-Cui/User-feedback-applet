@@ -61,9 +61,7 @@
 				},
 				countDown: 60,
 				isCountDown: false,
-				code: '',
 				codeId: '',
-				email: '',
 				effectiveTime: 300,
 				statusJson: {
 					'-5': '验证失败',
@@ -86,8 +84,62 @@
 		},
 		methods: {
 			// 处理登录
-			testSend() {
-				if(!this.email){
+			async handleLogin() {
+				if (!this.loginForm.username || !this.loginForm.password) {
+					uni.showToast({
+						title: '请填写完整信息',
+						icon: 'none'
+					})
+					return
+				}
+				
+				try {
+					uni.showLoading({
+						title: '登录中...'
+					})
+					
+					const res = await uniCloud.callFunction({
+						name: 'login',
+						data: this.loginForm
+					})
+					
+					uni.hideLoading()
+					
+					if (res.result.code === 0) {
+						// 存储用户信息
+						uni.setStorageSync('userInfo', res.result.data)
+						
+						uni.showToast({
+							title: '登录成功',
+							icon: 'success'
+						})
+						
+						// 修改为 redirectTo 或 navigateTo
+						setTimeout(() => {
+							uni.redirectTo({
+								url: '/pages/display/index'
+							})
+						}, 1500)
+					} else {
+						throw new Error(res.result.msg)
+					}
+				} catch (e) {
+					uni.hideLoading()
+					uni.showToast({
+						title: e.message || '登录失败',
+						icon: 'none'
+					})
+				}
+			},
+
+			// 修改发送验证码的方法
+			async testSend() {
+				// 如果正在倒计时，直接返回
+				if (this.isCountDown) {
+					return;
+				}
+
+				if(!this.registerForm.email){
 					uni.showToast({
 						duration: 1500,
 						title: '请输入邮箱',
@@ -96,38 +148,62 @@
 					})
 					return;
 				}
+				
+				// 验证邮箱格式
+				const emailReg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
+				if (!emailReg.test(this.registerForm.email)) {
+					uni.showToast({
+						title: '邮箱格式不正确',
+						icon: 'none'
+					})
+					return
+				}
+
 				uni.showLoading({
 					mask: true
 				})
-				uniCloud.callFunction({
-					name: "emailCode",
-					data: {
-						serviceType: 'qq',
-						method: 'sendCode',
-						html: '您注册的验证码是#code#',
-						email: this.email,
-						subject: '注册验证码'
-					}
-				}).then((res) => {
+				
+				try {
+					const res = await uniCloud.callFunction({
+						name: "emailCode",
+						data: {
+							serviceType: 'qq',
+							method: 'sendCode',
+							html: '您注册的验证码是#code#',
+							email: this.registerForm.email,
+							subject: '注册验证码'
+						}
+					})
+					
 					uni.hideLoading();
+					
 					if (res.result.status) {
-						this.codeId = res.result.id;
+						this.startCountDown();  // 开始倒计时
 						uni.showToast({
 							duration: 1500,
-							icon: 'none',
+							icon: 'success',
 							title: '发送成功',
 							mask: true
 						})
 					} else {
 						uni.showToast({
 							duration: 1500,
-							title: '发送失败',
+							title: res.result.msg,
 							mask: true,
 							icon: 'none'
 						})
 					}
-				});
+				} catch (e) {
+					uni.hideLoading();
+					uni.showToast({
+						duration: 1500,
+						title: '发送失败',
+						mask: true,
+						icon: 'none'
+					})
+				}
 			},
+
 			testValidate() {
 				if(!this.code){
 					uni.showToast({
@@ -169,165 +245,22 @@
 					})
 				});
 			},
-			async handleLogin() {
-				if (!this.loginForm.username || !this.loginForm.password) {
-					uni.showToast({
-						title: '请填写完整信息',
-						icon: 'none'
-					})
-					return
-				}
-
-				try {
-					uni.showLoading({
-						title: '登录中...'
-					})
-
-					const res = await uniCloud.callFunction({
-						name: 'login',
-						data: this.loginForm
-					})
-
-					uni.hideLoading()
-
-					if (res.result.code === 0) {
-						uni.setStorageSync('userInfo', res.result.data)
-						uni.showToast({
-							title: '登录成功'
-						})
-						setTimeout(() => {
-							uni.switchTab({
-								url: '/pages/index/index'
-							})
-						}, 1500)
-					} else {
-						throw new Error(res.result.msg)
-					}
-				} catch (e) {
-					uni.hideLoading()
-					uni.showToast({
-						title: e.message || '登录失败',
-						icon: 'none'
-					})
-				}
-			},
-
-			//uc31539@gmail.com
-
-			// 发送验证码
-			async sendCode() {
-				if (!this.registerForm.email) {
-					uni.showToast({
-						title: '请输入邮箱',
-						icon: 'none'
-					})
-					return
-				}
-
-				// 验证邮箱格式
-				const emailReg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
-				if (!emailReg.test(this.registerForm.email)) {
-					uni.showToast({
-						title: '邮箱格式不正确',
-						icon: 'none'
-					})
-					return
-				}
-
-				try {
-					uni.showLoading({
-						title: '发送中...'
-					})
-
-					const res = await uniCloud.callFunction({
-						name: 'sendEmailCode',
-						data: {
-							email: this.registerForm.email
-						}
-					})
-
-					uni.hideLoading()
-
-					if (res.result.code === 0) {
-						uni.showToast({
-							title: '验证码已发送'
-						})
-						this.startCountDown()
-					} else {
-						throw new Error(res.result.msg)
-					}
-				} catch (e) {
-					uni.hideLoading()
-					uni.showToast({
-						title: e.message || '发送失败',
-						icon: 'none'
-					})
-				}
-			},
-			// async sendCode() {
-			// 	const res = await uniCloud.callFunction({
-			// 		name: 'uni-id-co',
-			// 		data: {
-			// 			action: 'sendEmailCode',
-			// 			params: {
-			// 				email: this.email
-			// 			}
-			// 		}
-			// 	});
-
-
-			// 	if (res.result.code === 0) {
-			// 		uni.showToast({
-			// 			title: '验证码已发送',
-			// 			icon: 'success'
-			// 		});
-			// 	} else {
-			// 		uni.showToast({
-			// 			title: res.result.message,
-			// 			icon: 'none'
-			// 		});
-			// 	}
-			// },
-
-			async register() {
-				const res = await uniCloud.callFunction({
-					name: 'uni-id-co',
-					data: {
-						action: 'registerByEmail',
-						params: {
-							email: this.email,
-							code: this.code,
-							password: this.password
-						}
-					}
-				});
-				if (res.result.code === 0) {
-					uni.showToast({
-						title: '注册成功',
-						icon: 'success'
-					});
-					uni.navigateTo({
-						url: '/pages/login/login'
-					});
-				} else {
-					uni.showToast({
-						title: res.result.message,
-						icon: 'none'
-					});
-				}
-			},
 
 			// 开始倒计时
 			startCountDown() {
-				this.isCountDown = true
+				if (this.isCountDown) return;
+				this.isCountDown = true;
+				this.countDown = 60;
+				
 				const timer = setInterval(() => {
-					this.countDown--
-					if (this.countDown <= 0) {
-						clearInterval(timer)
-						this.isCountDown = false
-						this.countDown = 60
+					if (this.countDown <= 1) {
+						clearInterval(timer);
+						this.isCountDown = false;
+						this.countDown = 60;
+					} else {
+						this.countDown--;
 					}
-				}, 1000)
+				}, 1000);
 			},
 
 			// 处理注册

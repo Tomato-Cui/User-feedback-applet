@@ -1,0 +1,64 @@
+
+.content {
+	padding: 20rpx;
+}
+.feedback-form {
+	background: #fff;
+	border-radius: 12rpx;
+	padding: 30rpx;
+}
+.form-title {
+	font-size: 36rpx;
+	font-weight: bold;
+	text-align: center;
+	margin-bottom: 40rpx;
+}
+.form-item {
+	margin-bottom: 30rpx;
+}
+.label {
+	display: block;
+	font-size: 28rpx;
+	color: #666;
+	margin-bottom: 10rpx;
+}
+.picker {
+	height: 80rpx;
+	line-height: 80rpx;
+	background: #f8f8f8;
+	padding: 0 20rpx;
+	border-radius: 8rpx;
+	font-size: 28rpx;
+}
+.feedback-content {
+	width: 100%;
+	height: 300rpx;
+	background: #f8f8f8;
+	padding: 20rpx;
+	border-radius: 8rpx;
+	font-size: 28rpx;
+	box-sizing: border-box;
+}
+.word-count {
+	font-size: 24rpx;
+	color: #999;
+	text-align: right;
+	margin-top: 10rpx;
+}
+.contact-input {
+	height: 80rpx;
+	background: #f8f8f8;
+	padding: 0 20rpx;
+	border-radius: 8rpx;
+	font-size: 28rpx;
+}
+.submit-btn {
+	margin-top: 40rpx;
+	background: #007AFF;
+	color: #fff;
+	border: none;
+}
+.submit-btn:active {
+	opacity: 0.8;
+}
+

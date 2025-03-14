@@ -215,9 +215,7 @@ var _default = {
       },
       countDown: 60,
       isCountDown: false,
-      code: '',
       codeId: '',
-      email: '',
       effectiveTime: 300,
       statusJson: {
         '-5': '验证失败',
@@ -238,51 +236,171 @@ var _default = {
   },
   methods: {
     // 处理登录
-    testSend: function testSend() {
+    handleLogin: function handleLogin() {
       var _this = this;
-      if (!this.email) {
-        uni.showToast({
-          duration: 1500,
-          title: '请输入邮箱',
-          mask: true,
-          icon: 'none'
-        });
-        return;
-      }
-      uni.showLoading({
-        mask: true
-      });
-      uniCloud.callFunction({
-        name: "emailCode",
-        data: {
-          serviceType: 'qq',
-          method: 'sendCode',
-          html: '您注册的验证码是#code#',
-          email: this.email,
-          subject: '注册验证码'
-        }
-      }).then(function (res) {
-        uni.hideLoading();
-        if (res.result.status) {
-          _this.codeId = res.result.id;
-          uni.showToast({
-            duration: 1500,
-            icon: 'none',
-            title: '发送成功',
-            mask: true
-          });
-        } else {
-          uni.showToast({
-            duration: 1500,
-            title: '发送失败',
-            mask: true,
-            icon: 'none'
-          });
-        }
-      });
+      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
+        var res;
+        return _regenerator.default.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                if (!(!_this.loginForm.username || !_this.loginForm.password)) {
+                  _context.next = 3;
+                  break;
+                }
+                uni.showToast({
+                  title: '请填写完整信息',
+                  icon: 'none'
+                });
+                return _context.abrupt("return");
+              case 3:
+                _context.prev = 3;
+                uni.showLoading({
+                  title: '登录中...'
+                });
+                _context.next = 7;
+                return uniCloud.callFunction({
+                  name: 'login',
+                  data: _this.loginForm
+                });
+              case 7:
+                res = _context.sent;
+                uni.hideLoading();
+                if (!(res.result.code === 0)) {
+                  _context.next = 15;
+                  break;
+                }
+                // 存储用户信息
+                uni.setStorageSync('userInfo', res.result.data);
+                uni.showToast({
+                  title: '登录成功',
+                  icon: 'success'
+                });
+
+                // 修改为 redirectTo 或 navigateTo
+                setTimeout(function () {
+                  uni.redirectTo({
+                    url: '/pages/display/index'
+                  });
+                }, 1500);
+                _context.next = 16;
+                break;
+              case 15:
+                throw new Error(res.result.msg);
+              case 16:
+                _context.next = 22;
+                break;
+              case 18:
+                _context.prev = 18;
+                _context.t0 = _context["catch"](3);
+                uni.hideLoading();
+                uni.showToast({
+                  title: _context.t0.message || '登录失败',
+                  icon: 'none'
+                });
+              case 22:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, null, [[3, 18]]);
+      }))();
+    },
+    // 修改发送验证码的方法
+    testSend: function testSend() {
+      var _this2 = this;
+      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
+        var emailReg, res;
+        return _regenerator.default.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                if (!_this2.isCountDown) {
+                  _context2.next = 2;
+                  break;
+                }
+                return _context2.abrupt("return");
+              case 2:
+                if (_this2.registerForm.email) {
+                  _context2.next = 5;
+                  break;
+                }
+                uni.showToast({
+                  duration: 1500,
+                  title: '请输入邮箱',
+                  mask: true,
+                  icon: 'none'
+                });
+                return _context2.abrupt("return");
+              case 5:
+                // 验证邮箱格式
+                emailReg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+                if (emailReg.test(_this2.registerForm.email)) {
+                  _context2.next = 9;
+                  break;
+                }
+                uni.showToast({
+                  title: '邮箱格式不正确',
+                  icon: 'none'
+                });
+                return _context2.abrupt("return");
+              case 9:
+                uni.showLoading({
+                  mask: true
+                });
+                _context2.prev = 10;
+                _context2.next = 13;
+                return uniCloud.callFunction({
+                  name: "emailCode",
+                  data: {
+                    serviceType: 'qq',
+                    method: 'sendCode',
+                    html: '您注册的验证码是#code#',
+                    email: _this2.registerForm.email,
+                    subject: '注册验证码'
+                  }
+                });
+              case 13:
+                res = _context2.sent;
+                uni.hideLoading();
+                if (res.result.status) {
+                  _this2.startCountDown(); // 开始倒计时
+                  uni.showToast({
+                    duration: 1500,
+                    icon: 'success',
+                    title: '发送成功',
+                    mask: true
+                  });
+                } else {
+                  uni.showToast({
+                    duration: 1500,
+                    title: res.result.msg,
+                    mask: true,
+                    icon: 'none'
+                  });
+                }
+                _context2.next = 22;
+                break;
+              case 18:
+                _context2.prev = 18;
+                _context2.t0 = _context2["catch"](10);
+                uni.hideLoading();
+                uni.showToast({
+                  duration: 1500,
+                  title: '发送失败',
+                  mask: true,
+                  icon: 'none'
+                });
+              case 22:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, null, [[10, 18]]);
+      }))();
     },
     testValidate: function testValidate() {
-      var _this2 = this;
+      var _this3 = this;
       if (!this.code) {
         uni.showToast({
           duration: 1500,
@@ -317,178 +435,30 @@ var _default = {
         uni.hideLoading();
         uni.showToast({
           duration: 1500,
-          title: _this2.statusJson[res.result.status],
+          title: _this3.statusJson[res.result.status],
           mask: true,
           icon: 'none'
         });
       });
     },
-    handleLogin: function handleLogin() {
-      var _this3 = this;
-      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
-        var res;
-        return _regenerator.default.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                if (!(!_this3.loginForm.username || !_this3.loginForm.password)) {
-                  _context.next = 3;
-                  break;
-                }
-                uni.showToast({
-                  title: '请填写完整信息',
-                  icon: 'none'
-                });
-                return _context.abrupt("return");
-              case 3:
-                _context.prev = 3;
-                uni.showLoading({
-                  title: '登录中...'
-                });
-                _context.next = 7;
-                return uniCloud.callFunction({
-                  name: 'login',
-                  data: _this3.loginForm
-                });
-              case 7:
-                res = _context.sent;
-                uni.hideLoading();
-                if (!(res.result.code === 0)) {
-                  _context.next = 15;
-                  break;
-                }
-                uni.setStorageSync('userInfo', res.result.data);
-                uni.showToast({
-                  title: '登录成功'
-                });
-                setTimeout(function () {
-                  uni.switchTab({
-                    url: '/pages/index/index'
-                  });
-                }, 1500);
-                _context.next = 16;
-                break;
-              case 15:
-                throw new Error(res.result.msg);
-              case 16:
-                _context.next = 22;
-                break;
-              case 18:
-                _context.prev = 18;
-                _context.t0 = _context["catch"](3);
-                uni.hideLoading();
-                uni.showToast({
-                  title: _context.t0.message || '登录失败',
-                  icon: 'none'
-                });
-              case 22:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee, null, [[3, 18]]);
-      }))();
-    },
-    //uc31539@gmail.com
-    // 发送验证码
-    sendCode: function sendCode() {
+    // 开始倒计时
+    startCountDown: function startCountDown() {
       var _this4 = this;
-      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
-        var emailReg, res;
-        return _regenerator.default.wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                if (_this4.registerForm.email) {
-                  _context2.next = 3;
-                  break;
-                }
-                uni.showToast({
-                  title: '请输入邮箱',
-                  icon: 'none'
-                });
-                return _context2.abrupt("return");
-              case 3:
-                // 验证邮箱格式
-                emailReg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
-                if (emailReg.test(_this4.registerForm.email)) {
-                  _context2.next = 7;
-                  break;
-                }
-                uni.showToast({
-                  title: '邮箱格式不正确',
-                  icon: 'none'
-                });
-                return _context2.abrupt("return");
-              case 7:
-                _context2.prev = 7;
-                uni.showLoading({
-                  title: '发送中...'
-                });
-                _context2.next = 11;
-                return uniCloud.callFunction({
-                  name: 'sendEmailCode',
-                  data: {
-                    email: _this4.registerForm.email
-                  }
-                });
-              case 11:
-                res = _context2.sent;
-                uni.hideLoading();
-                if (!(res.result.code === 0)) {
-                  _context2.next = 18;
-                  break;
-                }
-                uni.showToast({
-                  title: '验证码已发送'
-                });
-                _this4.startCountDown();
-                _context2.next = 19;
-                break;
-              case 18:
-                throw new Error(res.result.msg);
-              case 19:
-                _context2.next = 25;
-                break;
-              case 21:
-                _context2.prev = 21;
-                _context2.t0 = _context2["catch"](7);
-                uni.hideLoading();
-                uni.showToast({
-                  title: _context2.t0.message || '发送失败',
-                  icon: 'none'
-                });
-              case 25:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, _callee2, null, [[7, 21]]);
-      }))();
+      if (this.isCountDown) return;
+      this.isCountDown = true;
+      this.countDown = 60;
+      var timer = setInterval(function () {
+        if (_this4.countDown <= 1) {
+          clearInterval(timer);
+          _this4.isCountDown = false;
+          _this4.countDown = 60;
+        } else {
+          _this4.countDown--;
+        }
+      }, 1000);
     },
-    // async sendCode() {
-    // 	const res = await uniCloud.callFunction({
-    // 		name: 'uni-id-co',
-    // 		data: {
-    // 			action: 'sendEmailCode',
-    // 			params: {
-    // 				email: this.email
-    // 			}
-    // 		}
-    // 	});
-    // 	if (res.result.code === 0) {
-    // 		uni.showToast({
-    // 			title: '验证码已发送',
-    // 			icon: 'success'
-    // 		});
-    // 	} else {
-    // 		uni.showToast({
-    // 			title: res.result.message,
-    // 			icon: 'none'
-    // 		});
-    // 	}
-    // },
-    register: function register() {
+    // 处理注册
+    handleRegister: function handleRegister() {
       var _this5 = this;
       return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3() {
         var res;
@@ -496,121 +466,63 @@ var _default = {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                _context3.next = 2;
-                return uniCloud.callFunction({
-                  name: 'uni-id-co',
-                  data: {
-                    action: 'registerByEmail',
-                    params: {
-                      email: _this5.email,
-                      code: _this5.code,
-                      password: _this5.password
-                    }
-                  }
-                });
-              case 2:
-                res = _context3.sent;
-                if (res.result.code === 0) {
-                  uni.showToast({
-                    title: '注册成功',
-                    icon: 'success'
-                  });
-                  uni.navigateTo({
-                    url: '/pages/login/login'
-                  });
-                } else {
-                  uni.showToast({
-                    title: res.result.message,
-                    icon: 'none'
-                  });
-                }
-              case 4:
-              case "end":
-                return _context3.stop();
-            }
-          }
-        }, _callee3);
-      }))();
-    },
-    // 开始倒计时
-    startCountDown: function startCountDown() {
-      var _this6 = this;
-      this.isCountDown = true;
-      var timer = setInterval(function () {
-        _this6.countDown--;
-        if (_this6.countDown <= 0) {
-          clearInterval(timer);
-          _this6.isCountDown = false;
-          _this6.countDown = 60;
-        }
-      }, 1000);
-    },
-    // 处理注册
-    handleRegister: function handleRegister() {
-      var _this7 = this;
-      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4() {
-        var res;
-        return _regenerator.default.wrap(function _callee4$(_context4) {
-          while (1) {
-            switch (_context4.prev = _context4.next) {
-              case 0:
-                if (!(!_this7.registerForm.username || !_this7.registerForm.email || !_this7.registerForm.code || !_this7.registerForm.password)) {
-                  _context4.next = 3;
+                if (!(!_this5.registerForm.username || !_this5.registerForm.email || !_this5.registerForm.code || !_this5.registerForm.password)) {
+                  _context3.next = 3;
                   break;
                 }
                 uni.showToast({
                   title: '请填写完整信息',
                   icon: 'none'
                 });
-                return _context4.abrupt("return");
+                return _context3.abrupt("return");
               case 3:
-                _context4.prev = 3;
+                _context3.prev = 3;
                 uni.showLoading({
                   title: '注册中...'
                 });
-                _context4.next = 7;
+                _context3.next = 7;
                 return uniCloud.callFunction({
                   name: 'register',
-                  data: _this7.registerForm
+                  data: _this5.registerForm
                 });
               case 7:
-                res = _context4.sent;
+                res = _context3.sent;
                 uni.hideLoading();
                 if (!(res.result.code === 0)) {
-                  _context4.next = 15;
+                  _context3.next = 15;
                   break;
                 }
                 uni.showToast({
                   title: '注册成功'
                 });
-                _this7.isLogin = true;
-                _this7.registerForm = {
+                _this5.isLogin = true;
+                _this5.registerForm = {
                   username: '',
                   email: '',
                   code: '',
                   password: ''
                 };
-                _context4.next = 16;
+                _context3.next = 16;
                 break;
               case 15:
                 throw new Error(res.result.msg);
               case 16:
-                _context4.next = 22;
+                _context3.next = 22;
                 break;
               case 18:
-                _context4.prev = 18;
-                _context4.t0 = _context4["catch"](3);
+                _context3.prev = 18;
+                _context3.t0 = _context3["catch"](3);
                 uni.hideLoading();
                 uni.showToast({
-                  title: _context4.t0.message || '注册失败',
+                  title: _context3.t0.message || '注册失败',
                   icon: 'none'
                 });
               case 22:
               case "end":
-                return _context4.stop();
+                return _context3.stop();
             }
           }
-        }, _callee4, null, [[3, 18]]);
+        }, _callee3, null, [[3, 18]]);
       }))();
     }
   }

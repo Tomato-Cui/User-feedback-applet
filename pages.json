@@ -10,9 +10,15 @@
 			}
 		},
 		{
-			"path": "pages/index/index",
+			"path": "pages/feedback/index",
 			"style": {
-				"navigationBarTitleText": "uni-app"
+				"navigationBarTitleText": "反馈"
+			}
+		},
+		{
+			"path": "pages/display/index",
+			"style": {
+				"navigationBarTitleText": "产品展示"
 			}
 		}
 		

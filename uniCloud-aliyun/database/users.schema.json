@@ -1,0 +1,51 @@
+{
+    "bsonType": "object",
+    "required": ["username", "password", "create_time"],
+    "permission": {
+        "read": false,
+        "create": true,
+        "update": false,
+        "delete": false
+    },
+    "properties": {
+        "_id": {
+            "description": "ID，系统自动生成"
+        },
+        "username": {
+            "bsonType": "string",
+            "description": "用户名",
+            "minLength": 3,
+            "maxLength": 32
+        },
+        "password": {
+            "bsonType": "string",
+            "description": "密码",
+            "minLength": 6,
+            "maxLength": 32
+        },
+        "email": {
+            "bsonType": "string",
+            "description": "邮箱",
+            "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$"
+        },
+        "create_time": {
+            "bsonType": "timestamp",
+            "description": "创建时间"
+        },
+        "update_time": {
+            "bsonType": "timestamp",
+            "description": "更新时间"
+        },
+        "last_login_time": {
+            "bsonType": "timestamp",
+            "description": "最后登录时间"
+        },
+        "status": {
+            "bsonType": "int",
+            "description": "用户状态：0-禁用 1-正常",
+            "minimum": 0,
+            "maximum": 1,
+            "defaultValue": 1
+        }
+    }
+} 

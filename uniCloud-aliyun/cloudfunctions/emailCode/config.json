@@ -1,0 +1,12 @@
+{
+    "emailConfig": {
+        "host": "smtp.qq.com",
+        "port": 465,
+        "secure": true,
+        "auth": {
+            "user": "2420362873@qq.com",
+            "pass": "cpqknuulelawdhga"
+        },
+        "from": "2420362873@qq.com"
+    }
+} 
